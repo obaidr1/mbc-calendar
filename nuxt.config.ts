@@ -1,16 +1,11 @@
 export default defineNuxtConfig({
-  runtimeConfig: {
-    version: '0.0.1'
-  },
-  modules: ['@nuxtjs/tailwindcss', 'nuxt-svgo', '@huntersofbook/naive-ui-nuxt'],
-  typescript: {
-    shim: false
-  },
-  devServer: {
-    port: 3002,
-    host: 'localhost'
-  },
+  devtools: { enabled: true },
+  modules: ['@nuxtjs/tailwindcss'],
   nitro: {
     plugins: ['~/server/plugins/prisma.ts']
+  },
+  runtimeConfig: {
+    authSecret: process.env.AUTH_SECRET,
+    databaseUrl: process.env.DATABASE_URL
   }
 })

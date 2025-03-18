@@ -23,11 +23,11 @@ type MultipartData = {
   type?: string
 }
 
-export default eventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
   try {
     const formData = await readMultipartFormData(event)
     if (!formData) {
-      throw createError({
+      return createError({
         statusCode: 400,
         message: 'No form data received'
       })
@@ -44,7 +44,7 @@ export default eventHandler(async (event: H3Event) => {
     for (const field of requiredFields) {
       const value = getData(field)
       if (!value) {
-        throw createError({
+        return createError({
           statusCode: 400,
           message: `${field} is required`
         })
@@ -59,37 +59,43 @@ export default eventHandler(async (event: H3Event) => {
         imageUrl = await uploadImage(imageFile.data)
       } catch (uploadError) {
         console.error('Error uploading image:', uploadError)
-        throw createError({
+        return createError({
           statusCode: 500,
           message: 'Failed to upload image'
         })
       }
     }
 
-    // Create event in database
-    const newEvent = await prisma.event.create({
-      data: {
-        title: getData('title'),
-        type: getData('type'),
-        date: new Date(`${getData('date')}T${getData('time')}`),
-        venue: getData('venue'),
-        address: getData('address'),
-        description: getData('description'),
-        price: parseFloat(getData('price')),
-        imageUrl
-      }
-    }).catch((dbError) => {
-      console.error('Error creating event:', dbError)
-      throw createError({
-        statusCode: 500,
-        message: 'Failed to create event'
+    try {
+      // Create event in database
+      const newEvent = await prisma.event.create({
+        data: {
+          title: getData('title'),
+          type: getData('type'),
+          date: new Date(`${getData('date')}T${getData('time')}`),
+          venue: getData('venue'),
+          address: getData('address'),
+          description: getData('description'),
+          price: parseFloat(getData('price')),
+          imageUrl
+        }
       })
-    })
 
-    return newEvent
+      // Return success response
+      return {
+        statusCode: 201,
+        body: newEvent
+      }
+    } catch (dbError) {
+      console.error('Error creating event:', dbError)
+      return createError({
+        statusCode: 500,
+        message: 'Failed to create event in database'
+      })
+    }
   } catch (error) {
     console.error('Error processing request:', error)
-    throw error instanceof H3Error ? error : createError({
+    return createError({
       statusCode: 500,
       message: error instanceof Error ? error.message : 'Internal server error'
     })

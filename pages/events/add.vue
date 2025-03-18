@@ -225,23 +225,19 @@ async function handleSubmit() {
       formData.append('image', eventData.value.image)
     }
 
-    try {
-      // Send request to API
-      await useFetch('/api/events', {
-        method: 'POST',
-        body: formData
-      })
+    // Send request to API using fetch instead of useFetch
+    const response = await fetch('/api/events', {
+      method: 'POST',
+      body: formData
+    })
 
-      // Redirect to events page on success
-      router.push('/events')
-    } catch (e: any) {
-      console.error('API Error:', e)
-      if (e.data?.message) {
-        error.value = e.data.message
-      } else {
-        error.value = 'Ein unerwarteter Fehler ist aufgetreten'
-      }
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.message || 'Ein Fehler ist aufgetreten')
     }
+
+    // Redirect to events page on success
+    router.push('/events')
   } catch (e) {
     console.error('Form Error:', e)
     error.value = e instanceof Error ? e.message : 'Ein unerwarteter Fehler ist aufgetreten'
@@ -253,9 +249,21 @@ async function handleSubmit() {
 
 <style scoped>
 .text-primary {
-  color: #2563eb;
+  color: #6B21A8;
 }
 .bg-primary {
-  background-color: #2563eb;
+  background-color: #6B21A8;
+}
+.hover\:text-primary:hover {
+  color: #6B21A8;
+}
+.hover\:bg-primary:hover {
+  background-color: #581C87;
+}
+.focus\:ring-primary:focus {
+  --tw-ring-color: #6B21A8;
+}
+button.bg-primary:hover {
+  background-color: #581C87;
 }
 </style> 

@@ -1,9 +1,11 @@
+// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: true,
   modules: ['@nuxtjs/tailwindcss'],
   nitro: {
-    preset: 'vercel'
+    preset: 'vercel',
+    compatibilityDate: '2024-03-19'
   },
   runtimeConfig: {
     authSecret: process.env.AUTH_SECRET,

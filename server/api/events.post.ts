@@ -23,7 +23,7 @@ type MultipartData = {
   type?: string
 }
 
-export default defineEventHandler(async (event: H3Event) => {
+export default eventHandler(async (event: H3Event) => {
   try {
     const formData = await readMultipartFormData(event)
     if (!formData) {
@@ -39,14 +39,6 @@ export default defineEventHandler(async (event: H3Event) => {
       return field?.data.toString() || ''
     }
 
-    // Get image file if it exists
-    const imageFile = formData.find((f) => f.name === 'image' && f.data)
-    let imageUrl: string | undefined
-
-    if (imageFile?.data) {
-      imageUrl = await uploadImage(imageFile.data)
-    }
-
     // Validate required fields
     const requiredFields = ['title', 'type', 'date', 'time', 'venue', 'address', 'description', 'price'] as const
     for (const field of requiredFields) {
@@ -55,6 +47,21 @@ export default defineEventHandler(async (event: H3Event) => {
         throw createError({
           statusCode: 400,
           message: `${field} is required`
+        })
+      }
+    }
+
+    // Get image file if it exists
+    let imageUrl: string | undefined
+    const imageFile = formData.find((f) => f.name === 'image' && f.data)
+    if (imageFile?.data) {
+      try {
+        imageUrl = await uploadImage(imageFile.data)
+      } catch (uploadError) {
+        console.error('Error uploading image:', uploadError)
+        throw createError({
+          statusCode: 500,
+          message: 'Failed to upload image'
         })
       }
     }
@@ -71,17 +78,20 @@ export default defineEventHandler(async (event: H3Event) => {
         price: parseFloat(getData('price')),
         imageUrl
       }
+    }).catch((dbError) => {
+      console.error('Error creating event:', dbError)
+      throw createError({
+        statusCode: 500,
+        message: 'Failed to create event'
+      })
     })
 
     return newEvent
   } catch (error) {
-    console.error('Error creating event:', error)
-    if (error instanceof H3Error) {
-      throw error
-    }
-    throw createError({
+    console.error('Error processing request:', error)
+    throw error instanceof H3Error ? error : createError({
       statusCode: 500,
-      message: error instanceof Error ? error.message : 'Error creating event'
+      message: error instanceof Error ? error.message : 'Internal server error'
     })
   }
 }) 

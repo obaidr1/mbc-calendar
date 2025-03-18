@@ -5,7 +5,10 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss'],
   nitro: {
     preset: 'vercel',
-    compatibilityDate: '2024-03-19'
+    compatibilityDate: '2024-03-19',
+    experimental: {
+      asyncContext: true
+    }
   },
   runtimeConfig: {
     authSecret: process.env.AUTH_SECRET,

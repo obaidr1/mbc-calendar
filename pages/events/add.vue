@@ -225,15 +225,14 @@ async function handleSubmit() {
       formData.append('image', eventData.value.image)
     }
 
-    // Send request to API using fetch instead of useFetch
-    const response = await fetch('/api/events', {
+    // Send request to API
+    const { data, error: apiError } = await useFetch('/api/events', {
       method: 'POST',
       body: formData
     })
 
-    if (!response.ok) {
-      const data = await response.json()
-      throw new Error(data.message || 'Ein Fehler ist aufgetreten')
+    if (apiError.value) {
+      throw new Error(apiError.value.message || 'Ein Fehler ist aufgetreten')
     }
 
     // Redirect to events page on success

@@ -5,7 +5,7 @@
       <!-- Background Image with Blur Effect -->
       <div class="absolute inset-0">
         <img 
-          src="~/public/images/hero-bg.jpg" 
+          src="/images/hero-bg.jpg" 
           alt="Background" 
           class="w-full h-full object-cover"
         />

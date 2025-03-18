@@ -1,8 +1,6 @@
 {
   "version": 2,
-  "functions": {
-    "**/*": {
-      "runtime": "@vercel/node@3.0.0"
-    }
-  }
+  "buildCommand": "npx prisma generate && npm run build",
+  "installCommand": "npm install",
+  "framework": "nuxt"
 } 

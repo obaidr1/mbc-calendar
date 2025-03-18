@@ -6,6 +6,6 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     authSecret: process.env.AUTH_SECRET,
-    databaseUrl: process.env.DATABASE_URL
+    postgresUrl: process.env.POSTGRES_PRISMA_URL
   }
 })

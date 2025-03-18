@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { defineNitroPlugin } from 'nitropack/runtime/plugin'
 
 const prisma = new PrismaClient()
 

@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "framework": "nuxt",
   "buildCommand": "npx prisma generate && npm run build",
   "outputDirectory": ".output"
 } 

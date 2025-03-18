@@ -1,13 +1,7 @@
 <template>
   <div class="container mx-auto px-4 py-8">
     <!-- Hero Section -->
-    <div class="relative h-[60vh] rounded-2xl overflow-hidden mb-16">
-      <img 
-        src="/images/hero-bg.jpg" 
-        alt="Event Hero" 
-        class="w-full h-full object-cover"
-      />
-      <div class="absolute inset-0 bg-gradient-to-r from-dark-bg/90 to-dark-bg/50"></div>
+    <div class="relative h-[60vh] rounded-2xl overflow-hidden mb-16 bg-dark-bg">
       <div class="absolute inset-0 flex items-center justify-center text-center">
         <div class="max-w-3xl px-4">
           <h1 class="text-5xl font-bold text-white mb-6 animate-fade-in">

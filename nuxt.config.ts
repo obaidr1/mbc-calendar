@@ -3,7 +3,17 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss'],
   nitro: {
     plugins: ['~/server/plugins/prisma.ts'],
-    preset: 'vercel'
+    preset: 'vercel',
+    runtimeConfig: {
+      vercel: {
+        regions: ['iad1']
+      }
+    },
+    vercel: {
+      functions: {
+        runtime: 'nodejs18.x'
+      }
+    }
   },
   runtimeConfig: {
     authSecret: process.env.AUTH_SECRET,

@@ -1,63 +1,92 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <!-- Hero Section -->
-    <div class="relative h-[60vh] rounded-2xl overflow-hidden mb-16 bg-dark-bg">
-      <div class="absolute inset-0 flex items-center justify-center text-center">
-        <div class="max-w-3xl px-4">
-          <h1 class="text-5xl font-bold text-white mb-6 animate-fade-in">
-            Entdecke unsere Events
-          </h1>
-          <p class="text-xl text-gray-300 mb-8 animate-slide-up">
-            Erlebe unvergessliche Momente bei unseren exklusiven Veranstaltungen
-          </p>
-          <div class="flex justify-center space-x-4">
-            <button class="bg-neon-purple hover:bg-neon-blue text-white px-8 py-3 rounded-full transition-colors duration-300">
-              Alle Events
-            </button>
-            <button class="border-2 border-neon-blue text-neon-blue hover:bg-neon-blue/10 px-8 py-3 rounded-full transition-colors duration-300">
-              Mehr Infos
-            </button>
+  <div class="min-h-screen bg-gray-100">
+    <nav class="bg-white shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex">
+            <NuxtLink to="/" class="flex items-center text-2xl font-bold text-primary">
+              MBC Calendar
+            </NuxtLink>
+          </div>
+          <div class="flex items-center space-x-4">
+            <NuxtLink to="/events" class="text-gray-700 hover:text-primary">Event-Kalender</NuxtLink>
+            <NuxtLink to="/events/add" class="text-gray-700 hover:text-primary">Event hinzufügen</NuxtLink>
           </div>
         </div>
       </div>
-    </div>
+    </nav>
 
-    <!-- Filter Section -->
-    <div class="bg-dark-card rounded-xl p-6 mb-12">
-      <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div class="flex-1 w-full">
-          <label class="block text-sm font-medium text-gray-300 mb-2">Kalenderwoche</label>
-          <input 
-            type="week" 
-            v-model="selectedWeek"
-            class="w-full bg-dark-hover border border-neon-purple/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-purple"
-          />
-        </div>
-        <div class="flex-1 w-full">
-          <label class="block text-sm font-medium text-gray-300 mb-2">Ort</label>
-          <select 
-            v-model="selectedLocation"
-            class="w-full bg-dark-hover border border-neon-purple/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neon-purple"
-          >
-            <option value="">Alle Orte</option>
-            <option v-for="location in locations" :key="location" :value="location">
-              {{ location }}
-            </option>
-          </select>
+    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900">Event-Kalender</h1>
+        <NuxtLink to="/events/add" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-600">
+          Event hinzufügen
+        </NuxtLink>
+      </div>
+
+      <!-- Event Filter -->
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Datum</label>
+            <input type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Ort</label>
+            <input type="text" placeholder="München" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Kategorie</label>
+            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              <option value="">Alle</option>
+              <option value="party">Party</option>
+              <option value="workshop">Workshop</option>
+              <option value="festival">Festival</option>
+            </select>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Events Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <EventCard
-        v-for="event in filteredEvents"
-        :key="event.id"
-        :event="event"
-        @view-details="viewEventDetails"
-        class="animate-fade-in"
-      />
-    </div>
+      <!-- Event List -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Event Card (Placeholder) -->
+        <div v-for="i in 6" :key="i" class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div class="aspect-w-16 aspect-h-9 bg-gray-200"></div>
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Bachata Night</h3>
+                <p class="text-gray-600">München, Deutschland</p>
+              </div>
+              <span class="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">Party</span>
+            </div>
+            <div class="mb-4">
+              <div class="flex items-center text-gray-600 mb-2">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Freitag, 22. März 2024</span>
+              </div>
+              <div class="flex items-center text-gray-600">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>21:00 - 03:00</span>
+              </div>
+            </div>
+            <NuxtLink :to="`/events/${i}`" class="block w-full text-center bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-600">
+              Details
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-white mt-16 py-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600">
+        © {{ new Date().getFullYear() }} MBC Calendar. Alle Rechte vorbehalten.
+      </div>
+    </footer>
   </div>
 </template>
 

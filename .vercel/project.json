@@ -1,0 +1,6 @@
+{
+  "projectSettings": {
+    "framework": "nuxt",
+    "nodeVersion": "18.x"
+  }
+} 

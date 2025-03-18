@@ -1,7 +1,7 @@
 {
   "version": 2,
   "functions": {
-    "api/**/*": {
+    "server/api/**/*": {
       "runtime": "@vercel/node@3.0.0"
     }
   }

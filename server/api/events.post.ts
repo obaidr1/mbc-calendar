@@ -23,7 +23,7 @@ type MultipartData = {
   type?: string
 }
 
-export default eventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event) => {
   try {
     const formData = await readMultipartFormData(event)
     if (!formData) {
@@ -78,13 +78,22 @@ export default eventHandler(async (event: H3Event) => {
         price: parseFloat(getData('price')),
         imageUrl
       }
+    }).catch((dbError) => {
+      console.error('Error creating event:', dbError)
+      throw createError({
+        statusCode: 500,
+        message: 'Failed to create event in database'
+      })
     })
 
-    // Send success response
+    // Return success response
     setResponseStatus(event, 201)
-    return newEvent
-  } catch (error) {
+    return { success: true, data: newEvent }
+  } catch (error: unknown) {
     console.error('Error processing request:', error)
+    if (error && typeof error === 'object' && 'statusCode' in error) {
+      throw error
+    }
     throw createError({
       statusCode: 500,
       message: error instanceof Error ? error.message : 'Internal server error'

@@ -225,21 +225,20 @@ async function handleSubmit() {
       formData.append('image', eventData.value.image)
     }
 
-    // Send request to API
-    const { data, error: apiError } = await useFetch('/api/events', {
+    // Send request to API using $fetch
+    await $fetch('/api/events', {
       method: 'POST',
-      body: formData
+      body: formData,
+      headers: {
+        accept: 'application/json',
+      }
     })
-
-    if (apiError.value) {
-      throw new Error(apiError.value.message || 'Ein Fehler ist aufgetreten')
-    }
 
     // Redirect to events page on success
     router.push('/events')
-  } catch (e) {
+  } catch (e: any) {
     console.error('Form Error:', e)
-    error.value = e instanceof Error ? e.message : 'Ein unerwarteter Fehler ist aufgetreten'
+    error.value = e.data?.message || e.message || 'Ein unerwarteter Fehler ist aufgetreten'
   } finally {
     isSubmitting.value = false
   }

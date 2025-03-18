@@ -1,7 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "npx prisma generate && npm run build",
-  "installCommand": "npm install",
   "functions": {
     "api/**/*": {
       "runtime": "nodejs18.x"

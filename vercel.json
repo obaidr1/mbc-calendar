@@ -3,7 +3,7 @@
   "buildCommand": "npx prisma generate && npm run build",
   "installCommand": "npm install",
   "functions": {
-    "api/**/*": {
+    ".output/functions/**/*": {
       "runtime": "@vercel/node@3.0.0"
     }
   }

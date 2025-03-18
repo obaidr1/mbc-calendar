@@ -1,19 +1,9 @@
 <template>
   <div>
-    <!-- Hero Section with Background Image -->
-    <div class="relative min-h-screen">
-      <!-- Background Image with Blur Effect -->
-      <div class="absolute inset-0">
-        <img 
-          src="~/public/images/hero-bg.jpg" 
-          alt="Background" 
-          class="w-full h-full object-cover"
-        />
-        <div class="absolute inset-0 bg-dark-bg/70 backdrop-blur-sm"></div>
-      </div>
-
+    <!-- Hero Section -->
+    <div class="relative min-h-screen bg-dark-bg">
       <!-- Content -->
-      <div class="relative z-10 container mx-auto px-4 pt-32 pb-20">
+      <div class="container mx-auto px-4 pt-32 pb-20">
         <div class="max-w-4xl mx-auto text-center mb-20">
           <h1 class="text-6xl font-bold text-white mb-6 animate-fade-in">
             Bachata Calendar Munich

@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "framework": "nuxt",
   "buildCommand": "npx prisma generate && npm run build",
-  "installCommand": "npm install"
+  "outputDirectory": ".output",
+  "nodeVersion": "18.x"
 } 

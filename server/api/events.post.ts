@@ -1,49 +1,76 @@
 import { PrismaClient } from '@prisma/client'
-import { H3Event, H3Error, readMultipartFormData } from 'h3'
-import { uploadImage } from '../utils/cloudinary'
+import { createHash } from 'crypto'
 
 const prisma = new PrismaClient()
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME
+const apiKey = process.env.CLOUDINARY_API_KEY
+const apiSecret = process.env.CLOUDINARY_API_SECRET
 
-interface EventFormData {
-  title: string
-  type: string
-  date: string
-  time: string
-  venue: string
-  address: string
-  description: string
-  price: number
-  image?: Blob
+if (!cloudName || !apiKey || !apiSecret) {
+  throw new Error('Missing Cloudinary configuration')
 }
 
-type MultipartData = {
-  name: string
-  data: Buffer
-  filename?: string
-  type?: string
+async function uploadToCloudinary(file: Buffer) {
+  try {
+    const base64Data = file.toString('base64')
+    const timestamp = Math.round(new Date().getTime() / 1000)
+    const signature = createHash('sha256')
+      .update(`timestamp=${timestamp}${apiSecret}`)
+      .digest('hex')
+
+    const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        file: `data:image/jpeg;base64,${base64Data}`,
+        api_key: apiKey,
+        timestamp: timestamp,
+        signature: signature
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to upload image')
+    }
+
+    const data = await response.json()
+    return data.secure_url
+  } catch (error) {
+    console.error('Image upload error:', error)
+    return null
+  }
 }
 
-export default eventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event) => {
   try {
     const formData = await readMultipartFormData(event)
     if (!formData) {
       throw createError({
         statusCode: 400,
-        message: 'No form data received'
+        message: 'No form data provided'
       })
     }
 
-    // Extract data from formData
-    const getData = (name: string): string => {
-      const field = formData.find((f) => f.name === name && f.data)
-      return field?.data.toString() || ''
+    const data: Record<string, string> = {}
+    let imageBuffer: Buffer | null = null
+
+    // Process form fields
+    for (const field of formData) {
+      if (field.name === 'image') {
+        imageBuffer = field.data
+        continue
+      }
+      if (field.name) {
+        data[field.name] = field.data.toString('utf-8')
+      }
     }
 
     // Validate required fields
     const requiredFields = ['title', 'type', 'date', 'time', 'venue', 'address', 'description', 'price'] as const
     for (const field of requiredFields) {
-      const value = getData(field)
-      if (!value) {
+      if (!data[field]) {
         throw createError({
           statusCode: 400,
           message: `${field} is required`
@@ -51,14 +78,11 @@ export default eventHandler(async (event: H3Event) => {
       }
     }
 
-    // Get image file if it exists
-    let imageUrl: string | undefined
-    const imageFile = formData.find((f) => f.name === 'image' && f.data)
-    if (imageFile?.data) {
-      try {
-        imageUrl = await uploadImage(imageFile.data)
-      } catch (uploadError) {
-        console.error('Error uploading image:', uploadError)
+    // Handle image upload if present
+    let imageUrl = null
+    if (imageBuffer) {
+      imageUrl = await uploadToCloudinary(imageBuffer)
+      if (!imageUrl) {
         throw createError({
           statusCode: 500,
           message: 'Failed to upload image'
@@ -69,29 +93,27 @@ export default eventHandler(async (event: H3Event) => {
     // Create event in database
     const newEvent = await prisma.event.create({
       data: {
-        title: getData('title'),
-        type: getData('type'),
-        date: new Date(`${getData('date')}T${getData('time')}`),
-        venue: getData('venue'),
-        address: getData('address'),
-        description: getData('description'),
-        price: parseFloat(getData('price')),
+        title: data.title,
+        type: data.type,
+        date: new Date(`${data.date}T${data.time}`),
+        time: data.time,
+        venue: data.venue,
+        address: data.address,
+        description: data.description,
+        price: parseFloat(data.price),
         imageUrl
       }
     })
 
-    return { success: true, data: newEvent }
-  } catch (error: unknown) {
-    console.error('Error processing request:', error)
-    if (error instanceof Error) {
-      throw createError({
-        statusCode: 500,
-        message: error.message
-      })
+    return {
+      success: true,
+      data: newEvent
     }
+  } catch (error: any) {
+    console.error('Event creation error:', error)
     throw createError({
-      statusCode: 500,
-      message: 'Internal server error'
+      statusCode: error.statusCode || 500,
+      message: error.message || 'Failed to create event'
     })
   }
-}) 
+})

@@ -59,3 +59,66 @@ Locally preview production build:
 ```bash
 npm run preview
 ```
+
+# MBC Calendar
+
+A calendar application for managing and featuring events.
+
+## Development Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Copy `.env.example` to `.env` and fill in your values:
+   ```bash
+   cp .env.example .env
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## Production Deployment
+
+1. Set up your production environment:
+   - Create a new `.env` file with production values
+   - Set up a production database
+   - Configure Cloudinary credentials
+   - Set a secure admin password
+
+2. Build the application:
+   ```bash
+   npm run build:prod
+   ```
+
+3. Start the production server:
+   ```bash
+   npm run start:prod
+   ```
+
+## Environment Variables
+
+- `DATABASE_URL`: Database connection string
+- `CLOUDINARY_CLOUD_NAME`: Your Cloudinary cloud name
+- `CLOUDINARY_API_KEY`: Your Cloudinary API key
+- `CLOUDINARY_API_SECRET`: Your Cloudinary API secret
+- `ADMIN_PASSWORD`: Password for admin access
+- `NODE_ENV`: Set to "production" in production
+
+## Security Considerations
+
+1. Always use HTTPS in production
+2. Set secure passwords for admin access
+3. Keep your environment variables secure
+4. Regularly backup your database
+5. Monitor your application logs
+
+## Backup and Recovery
+
+The application automatically creates backups of modified files in the `backups/` directory. The system keeps up to 10 versions of each file.
+
+## Support
+
+For support, please contact the development team.

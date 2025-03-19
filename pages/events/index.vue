@@ -1,144 +1,149 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
-    <nav class="bg-white shadow-lg">
+  <div class="min-h-screen bg-[#1a1a1a]">
+    <!-- Admin Topbar -->
+    <div v-if="isAdmin" class="bg-pink-600 text-white py-2">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          <span class="font-medium">Admin View</span>
+        </div>
+        <button @click="logout" class="text-white hover:text-gray-200 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="py-6 sm:py-12">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex">
-            <NuxtLink to="/" class="flex items-center text-2xl font-bold text-primary">
-              MBC Calendar
-            </NuxtLink>
-          </div>
-          <div class="flex items-center space-x-4">
-            <NuxtLink to="/events" class="text-gray-700 hover:text-primary">Event-Kalender</NuxtLink>
-            <NuxtLink to="/events/add" class="text-gray-700 hover:text-primary">Event hinzufügen</NuxtLink>
+        <!-- Page Header -->
+        <div class="mb-6 sm:mb-8">
+          <div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2">Events</h1>
+            <p class="text-gray-400">Finde alle Tanz-Events in deiner Nähe</p>
           </div>
         </div>
-      </div>
-    </nav>
 
-    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-900">Event-Kalender</h1>
-        <NuxtLink to="/events/add" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-600">
-          Event hinzufügen
-        </NuxtLink>
-      </div>
+        <!-- Events Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div v-for="event in events" :key="event.id" class="bg-[#2a2a2a] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-200">
+            <div class="relative">
+              <NuxtLink :to="`/events/${event.id}`">
+                <!-- Event Image -->
+                <div v-if="event.imageUrl" class="relative h-48">
+                  <img
+                    :src="event.imageUrl"
+                    :alt="event.title"
+                    class="w-full h-full object-cover"
+                  >
+                  <div v-if="isAdmin" class="absolute top-2 right-2">
+                    <button
+                      @click.prevent="toggleFeatured(event)"
+                      class="p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+                      :class="{ 'text-yellow-400': event.isFeatured }"
+                      title="Toggle featured status"
+                    >
+                      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.363 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.363-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
 
-      <!-- Event Filter -->
-      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Datum</label>
-            <input type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Ort</label>
-            <input type="text" placeholder="München" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Kategorie</label>
-            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-              <option value="">Alle</option>
-              <option value="party">Party</option>
-              <option value="workshop">Workshop</option>
-              <option value="festival">Festival</option>
-            </select>
-          </div>
-        </div>
-      </div>
+                <!-- Event Content -->
+                <div class="p-4 sm:p-6">
+                  <h2 class="text-xl sm:text-2xl font-bold text-white mb-2">{{ event.title }}</h2>
 
-      <!-- Event List -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Event Card (Placeholder) -->
-        <div v-for="i in 6" :key="i" class="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div class="aspect-w-16 aspect-h-9 bg-gray-200"></div>
-          <div class="p-6">
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Bachata Night</h3>
-                <p class="text-gray-600">München, Deutschland</p>
-              </div>
-              <span class="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">Party</span>
+                  <!-- Event Type Badge -->
+                  <div class="inline-block px-3 py-1 bg-pink-600/20 text-pink-400 rounded-full text-sm mb-4">
+                    {{ event.type }}
+                  </div>
+
+                  <!-- Event Details -->
+                  <div class="space-y-2 text-gray-400">
+                    <div class="flex items-center">
+                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {{ formatDate(event.date) }}
+                    </div>
+                    <div class="flex items-center">
+                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {{ event.time }}
+                    </div>
+                    <div class="flex items-center">
+                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {{ event.venue }}
+                    </div>
+                    <div class="flex items-center">
+                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {{ formatPrice(event.price) }}
+                    </div>
+                  </div>
+                </div>
+              </NuxtLink>
             </div>
-            <div class="mb-4">
-              <div class="flex items-center text-gray-600 mb-2">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span>Freitag, 22. März 2024</span>
-              </div>
-              <div class="flex items-center text-gray-600">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>21:00 - 03:00</span>
-              </div>
-            </div>
-            <NuxtLink :to="`/events/${i}`" class="block w-full text-center bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-600">
-              Details
-            </NuxtLink>
           </div>
         </div>
       </div>
-    </main>
-
-    <footer class="bg-white mt-16 py-8">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600">
-        © {{ new Date().getFullYear() }} MBC Calendar. Alle Rechte vorbehalten.
-      </div>
-    </footer>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-interface Event {
-  id: number
-  title: string
-  description: string
-  date: Date
-  location: string
-  bannerUrl?: string
-  creatorName: string
-  creatorEmail: string
+interface User {
+  role: string;
 }
 
-const selectedWeek = ref('')
-const selectedLocation = ref('')
-const events = ref<Event[]>([])
+const { data: events, refresh } = await useFetch('/api/events')
+const { isAdmin, logout } = useAuth()
+const error = ref('')
 
-// Fetch events
-const { data: eventsData } = await useFetch<Event[]>('/api/events')
-events.value = eventsData.value || []
-
-// Computed properties
-const locations = computed(() => {
-  return [...new Set(events.value.map(event => event.location))]
-})
-
-const filteredEvents = computed(() => {
-  let filtered = events.value
-
-  if (selectedWeek.value) {
-    const weekStart = new Date(selectedWeek.value)
-    const weekEnd = new Date(weekStart)
-    weekEnd.setDate(weekEnd.getDate() + 7)
-    
-    filtered = filtered.filter(event => {
-      const eventDate = new Date(event.date)
-      return eventDate >= weekStart && eventDate < weekEnd
+async function toggleFeatured(event: any) {
+  try {
+    error.value = ''
+    const response = await fetch(`/api/events/${event.id}/feature`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ isFeatured: !event.isFeatured })
     })
+
+    if (!response.ok) {
+      throw new Error('Failed to update featured status')
+    }
+
+    await refresh()
+  } catch (error: any) {
+    console.error('Error toggling featured status:', error)
+    error.value = error.message || 'Failed to update featured status'
   }
-
-  if (selectedLocation.value) {
-    filtered = filtered.filter(event => event.location === selectedLocation.value)
-  }
-
-  return filtered
-})
-
-// Methods
-function viewEventDetails(event: Event) {
-  // Implement event details view logic
-  console.log('View details for event:', event)
 }
-</script> 
+
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString('de-DE', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+function formatPrice(price: number) {
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(price)
+}
+</script>

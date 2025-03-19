@@ -119,3 +119,27 @@ yarn-error.log*
 # Backup files
 backups/
 *.backup
+
+# Environment variables
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.db-journal
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Build files
+.nitro
+.cache
+.output

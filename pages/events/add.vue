@@ -148,7 +148,7 @@
           <button 
             type="submit" 
             :disabled="isSubmitting"
-            class="w-full bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ isSubmitting ? 'Wird erstellt...' : 'Event erstellen' }}
           </button>
@@ -168,20 +168,11 @@
 </template>
 
 <script setup lang="ts">
-interface EventData {
-  title: string
-  type: string
-  date: string
-  time: string
-  venue: string
-  address: string
-  description: string
-  price: number
-  image?: File
-}
-
 const router = useRouter()
-const eventData = ref<EventData>({
+const isSubmitting = ref(false)
+const error = ref('')
+
+const eventData = reactive({
   title: '',
   type: 'party',
   date: '',
@@ -189,18 +180,17 @@ const eventData = ref<EventData>({
   venue: '',
   address: '',
   description: '',
-  price: 0
+  price: 0,
+  image: null as File | null
 })
 
-const isSubmitting = ref(false)
-const error = ref('')
 const previewUrl = ref('')
 
 function handleFileUpload(event: Event) {
   const target = event.target as HTMLInputElement
   if (target.files && target.files[0]) {
     const file = target.files[0]
-    eventData.value.image = file
+    eventData.image = file
     previewUrl.value = URL.createObjectURL(file)
   }
 }
@@ -210,35 +200,52 @@ async function handleSubmit() {
     isSubmitting.value = true
     error.value = ''
 
-    // Create FormData
     const formData = new FormData()
-    formData.append('title', eventData.value.title)
-    formData.append('type', eventData.value.type)
-    formData.append('date', eventData.value.date)
-    formData.append('time', eventData.value.time)
-    formData.append('venue', eventData.value.venue)
-    formData.append('address', eventData.value.address)
-    formData.append('description', eventData.value.description)
-    formData.append('price', eventData.value.price.toString())
+    formData.append('title', eventData.title)
+    formData.append('type', eventData.type)
+    formData.append('date', eventData.date)
+    formData.append('time', eventData.time)
+    formData.append('venue', eventData.venue)
+    formData.append('address', eventData.address)
+    formData.append('description', eventData.description)
+    formData.append('price', eventData.price.toString())
     
-    if (eventData.value.image) {
-      formData.append('image', eventData.value.image)
+    if (eventData.image) {
+      formData.append('image', eventData.image)
     }
 
-    // Send request to API using $fetch
-    await $fetch('/api/events', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        accept: 'application/json',
-      }
-    })
+    const { data, error: apiError } = await useAsyncData('createEvent', () => 
+      $fetch('/api/events', {
+        method: 'POST',
+        body: formData
+      })
+    )
 
-    // Redirect to events page on success
-    router.push('/events')
+    if (apiError.value) {
+      throw new Error(apiError.value.message || 'Ein Fehler ist aufgetreten')
+    }
+
+    if (data.value) {
+      // Reset form
+      Object.assign(eventData, {
+        title: '',
+        type: 'party',
+        date: '',
+        time: '',
+        venue: '',
+        address: '',
+        description: '',
+        price: 0,
+        image: null
+      })
+      previewUrl.value = ''
+      
+      // Navigate to events page
+      await router.push('/events')
+    }
   } catch (e: any) {
     console.error('Form Error:', e)
-    error.value = e.data?.message || e.message || 'Ein unerwarteter Fehler ist aufgetreten'
+    error.value = e.message || 'Ein unerwarteter Fehler ist aufgetreten'
   } finally {
     isSubmitting.value = false
   }
@@ -246,22 +253,19 @@ async function handleSubmit() {
 </script>
 
 <style scoped>
-.text-primary {
-  color: #6B21A8;
-}
 .bg-primary {
   background-color: #6B21A8;
 }
-.hover\:text-primary:hover {
+.bg-primary-dark {
+  background-color: #581C87;
+}
+.text-primary {
   color: #6B21A8;
 }
-.hover\:bg-primary:hover {
+.hover\:bg-primary-dark:hover {
   background-color: #581C87;
 }
 .focus\:ring-primary:focus {
   --tw-ring-color: #6B21A8;
-}
-button.bg-primary:hover {
-  background-color: #581C87;
 }
 </style> 

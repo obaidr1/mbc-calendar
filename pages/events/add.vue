@@ -111,6 +111,32 @@
             </div>
           </div>
 
+          <!-- Repeat Options -->
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <input
+                v-model="eventData.isRepeating"
+                type="checkbox"
+                class="h-4 w-4 text-pink-600 focus:ring-pink-600 border-gray-600 rounded bg-[#1a1a1a]"
+              >
+              <label class="ml-2 block text-sm text-gray-300">Event wiederholen</label>
+            </div>
+
+            <div v-if="eventData.isRepeating" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Wiederholen bis</label>
+                <input
+                  v-model="eventData.repeatUntil"
+                  type="date"
+                  required
+                  :min="eventData.date"
+                  class="w-full px-4 py-3 bg-[#1a1a1a] border border-pink-600/20 rounded-lg text-white focus:border-pink-600 focus:ring-0"
+                >
+              </div>
+              <p class="text-sm text-gray-400">Das Event wird wöchentlich bis zum ausgewählten Datum wiederholt.</p>
+            </div>
+          </div>
+
           <!-- Image Upload -->
           <div>
             <label class="block text-sm font-medium text-gray-300 mb-2">Event Bild</label>
@@ -183,7 +209,9 @@ const eventData = reactive({
   address: '',
   description: '',
   price: 0,
-  image: null as File | null
+  image: null as File | null,
+  isRepeating: false,
+  repeatUntil: ''
 })
 
 const previewUrl = ref('')
@@ -224,6 +252,8 @@ async function handleSubmit() {
     formData.append('address', eventData.address)
     formData.append('description', eventData.description)
     formData.append('price', eventData.price.toString())
+    formData.append('isRepeating', eventData.isRepeating.toString())
+    formData.append('repeatUntil', eventData.repeatUntil)
 
     // Append image if selected
     if (eventData.image) {
@@ -251,7 +281,9 @@ async function handleSubmit() {
       address: '',
       description: '',
       price: 0,
-      image: null
+      image: null,
+      isRepeating: false,
+      repeatUntil: ''
     })
     previewUrl.value = ''
 

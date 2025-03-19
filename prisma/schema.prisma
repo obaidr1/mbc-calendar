@@ -22,6 +22,11 @@ model Event {
   price       Float
   imageUrl    String?
   isFeatured  Boolean  @default(false)
+  isRepeating Boolean  @default(false)
+  repeatUntil DateTime?
+  parentId    String?
+  parent      Event?   @relation("EventToEvent", fields: [parentId], references: [id])
+  children    Event[]  @relation("EventToEvent")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

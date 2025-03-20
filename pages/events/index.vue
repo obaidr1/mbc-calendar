@@ -56,73 +56,81 @@
           </button>
         </div>
 
-        <!-- Events Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          <div v-for="event in events" :key="event.id" class="bg-[#2a2a2a] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-200">
-            <div class="relative">
-              <NuxtLink :to="`/events/${event.id}`">
-                <!-- Event Image -->
-                <div v-if="event.imageUrl" class="relative h-40 sm:h-48">
-                  <img
-                    :src="event.imageUrl"
-                    :alt="event.title"
-                    class="w-full h-full object-cover"
-                  >
-                  <div v-if="isAdmin" class="absolute top-2 right-2">
-                    <button
-                      @click.prevent="toggleFeatured(event)"
-                      class="p-1.5 sm:p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
-                      :class="{ 'text-yellow-400': event.isFeatured }"
-                      title="Toggle featured status"
-                    >
-                      <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.363 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.363-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    </button>
+        <!-- Events by Day -->
+        <div class="space-y-8">
+          <template v-for="day in weekDays" :key="day.date">
+            <div v-if="eventsByDay[day.date]?.length" class="space-y-4">
+              <!-- Day Header -->
+              <div class="flex items-center space-x-4 pb-2 border-b border-pink-600/20">
+                <h2 class="text-xl sm:text-2xl font-bold text-white">{{ day.label }}</h2>
+                <span class="text-gray-400">{{ formatDate(day.date, { weekday: undefined }) }}</span>
+              </div>
+
+              <!-- Events Grid for the Day -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                <div v-for="event in eventsByDay[day.date]" :key="event.id"
+                     class="bg-[#2a2a2a] rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-200">
+                  <div class="relative">
+                    <NuxtLink :to="`/events/${event.id}`">
+                      <!-- Event Image -->
+                      <div v-if="event.imageUrl" class="relative h-40 sm:h-48">
+                        <img
+                          :src="event.imageUrl"
+                          :alt="event.title"
+                          class="w-full h-full object-cover"
+                        >
+                        <div v-if="isAdmin" class="absolute top-2 right-2">
+                          <button
+                            @click.prevent="toggleFeatured(event)"
+                            class="p-1.5 sm:p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+                            :class="{ 'text-yellow-400': event.isFeatured }"
+                            title="Toggle featured status"
+                          >
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.363 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.363-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Event Content -->
+                      <div class="p-3 sm:p-4 lg:p-6">
+                        <h2 class="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2 line-clamp-2">{{ event.title }}</h2>
+
+                        <!-- Event Type Badge -->
+                        <div class="inline-block px-2.5 py-1 bg-pink-600/20 text-pink-400 rounded-full text-xs sm:text-sm mb-3 sm:mb-4">
+                          {{ event.type }}
+                        </div>
+
+                        <!-- Event Details -->
+                        <div class="space-y-2 text-sm sm:text-base text-gray-400">
+                          <div class="flex items-center">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{{ event.time }}</span>
+                          </div>
+                          <div class="flex items-center">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span class="line-clamp-1">{{ event.venue }}</span>
+                          </div>
+                          <div class="flex items-center">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{{ formatPrice(event.price) }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </NuxtLink>
                   </div>
                 </div>
-
-                <!-- Event Content -->
-                <div class="p-3 sm:p-4 lg:p-6">
-                  <h2 class="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2 line-clamp-2">{{ event.title }}</h2>
-
-                  <!-- Event Type Badge -->
-                  <div class="inline-block px-2.5 py-1 bg-pink-600/20 text-pink-400 rounded-full text-xs sm:text-sm mb-3 sm:mb-4">
-                    {{ event.type }}
-                  </div>
-
-                  <!-- Event Details -->
-                  <div class="space-y-2 text-sm sm:text-base text-gray-400">
-                    <div class="flex items-center">
-                      <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span class="line-clamp-1">{{ formatDate(event.date) }}</span>
-                    </div>
-                    <div class="flex items-center">
-                      <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span>{{ event.time }}</span>
-                    </div>
-                    <div class="flex items-center">
-                      <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span class="line-clamp-1">{{ event.venue }}</span>
-                    </div>
-                    <div class="flex items-center">
-                      <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span>{{ formatPrice(event.price) }}</span>
-                    </div>
-                  </div>
-                </div>
-              </NuxtLink>
+              </div>
             </div>
-          </div>
+          </template>
         </div>
       </div>
     </div>
@@ -153,24 +161,67 @@ interface Event {
   updatedAt: string;
 }
 
-const { data: allEvents, refresh } = await useFetch('/api/events')
+interface DayInfo {
+  date: string;
+  label: string;
+}
+
+interface EventsByDay {
+  [key: string]: Event[];
+}
+
+const { data: allEvents, refresh } = await useFetch<Event[]>('/api/events')
 const { isAdmin, logout } = useAuth()
 const error = ref('')
 
 // Week filter state
 const selectedWeekStart = ref(getStartOfWeek(new Date()))
 
-// Filter events by selected week
-const events = computed(() => {
-  if (!allEvents.value) return []
+// Compute week days
+const weekDays = computed<DayInfo[]>(() => {
+  const days: DayInfo[] = []
+  const start = new Date(selectedWeekStart.value)
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(start)
+    date.setDate(date.getDate() + i)
+    days.push({
+      date: date.toISOString().split('T')[0],
+      label: formatDate(date, { weekday: 'long' })
+    })
+  }
+
+  return days
+})
+
+// Group events by day
+const eventsByDay = computed<EventsByDay>(() => {
+  if (!allEvents.value) return {}
 
   const weekEnd = new Date(selectedWeekStart.value)
   weekEnd.setDate(weekEnd.getDate() + 6)
 
-  return allEvents.value.filter((event: Event) => {
+  const groupedEvents: EventsByDay = {}
+
+  allEvents.value.forEach((event: Event) => {
     const eventDate = new Date(event.date)
-    return eventDate >= selectedWeekStart.value && eventDate <= weekEnd
+    if (eventDate >= selectedWeekStart.value && eventDate <= weekEnd) {
+      const dateKey = event.date.split('T')[0]
+      if (!groupedEvents[dateKey]) {
+        groupedEvents[dateKey] = []
+      }
+      groupedEvents[dateKey].push(event)
+    }
   })
+
+  // Sort events by time within each day
+  Object.keys(groupedEvents).forEach(date => {
+    groupedEvents[date].sort((a: Event, b: Event) => {
+      return a.time.localeCompare(b.time)
+    })
+  })
+
+  return groupedEvents
 })
 
 // Week navigation functions
@@ -237,13 +288,15 @@ async function toggleFeatured(event: any) {
   }
 }
 
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString('de-DE', {
+function formatDate(date: Date | string, options: Intl.DateTimeFormatOptions = {}) {
+  const defaultOptions: Intl.DateTimeFormatOptions = {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  })
+  }
+
+  return new Date(date).toLocaleDateString('de-DE', { ...defaultOptions, ...options })
 }
 
 function formatPrice(price: number) {

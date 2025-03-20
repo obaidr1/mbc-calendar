@@ -12,9 +12,12 @@
           <div class="flex items-center space-x-8">
             <NuxtLink to="/about" class="text-gray-300 hover:text-pink-500 transition-colors">About</NuxtLink>
             <NuxtLink to="/events" class="text-gray-300 hover:text-pink-500 transition-colors">Event-Kalender</NuxtLink>
-            <NuxtLink to="/events/add" class="bg-pink-600 text-white px-6 py-2 rounded-full hover:bg-pink-700 transition-colors">
+            <button
+              @click="handleAddEventClick"
+              class="bg-pink-600 text-white px-6 py-2 rounded-full hover:bg-pink-700 transition-colors"
+            >
               Event hinzufügen
-            </NuxtLink>
+            </button>
           </div>
         </div>
       </div>
@@ -37,7 +40,7 @@
             <h3 class="text-xl font-bold text-white mb-4">Quick Links</h3>
             <ul class="space-y-2">
               <li><NuxtLink to="/events" class="text-gray-400 hover:text-pink-500">Events</NuxtLink></li>
-              <li><NuxtLink to="/events/add" class="text-gray-400 hover:text-pink-500">Add Event</NuxtLink></li>
+              <li><button @click="handleAddEventClick" class="text-gray-400 hover:text-pink-500">Add Event</button></li>
               <li><NuxtLink to="/about" class="text-gray-400 hover:text-pink-500">About</NuxtLink></li>
             </ul>
           </div>
@@ -73,5 +76,13 @@
 </style>
 
 <script setup lang="ts">
-// Add any necessary setup logic here
+const { isAdmin } = useAuth()
+
+async function handleAddEventClick() {
+  if (!isAdmin.value) {
+    await navigateTo('/login')
+  } else {
+    await navigateTo('/events/add')
+  }
+}
 </script>

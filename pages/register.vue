@@ -3,12 +3,12 @@
     <div class="max-w-md w-full space-y-8">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
-          Anmelden
+          Registrieren
         </h2>
         <p class="mt-2 text-center text-sm text-gray-400">
           Oder
-          <NuxtLink to="/register" class="font-medium text-pink-600 hover:text-pink-500">
-            registriere dich für ein neues Konto
+          <NuxtLink to="/login" class="font-medium text-pink-600 hover:text-pink-500">
+            melde dich an, wenn du bereits ein Konto hast
           </NuxtLink>
         </p>
       </div>
@@ -34,8 +34,20 @@
               name="password"
               type="password"
               required
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-pink-600/20 placeholder-gray-500 text-white bg-[#2a2a2a] rounded-b-md focus:outline-none focus:ring-pink-600 focus:border-pink-600 focus:z-10 sm:text-sm"
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-pink-600/20 placeholder-gray-500 text-white bg-[#2a2a2a] focus:outline-none focus:ring-pink-600 focus:border-pink-600 focus:z-10 sm:text-sm"
               placeholder="Passwort"
+            >
+          </div>
+          <div>
+            <label for="confirmPassword" class="sr-only">Passwort bestätigen</label>
+            <input
+              id="confirmPassword"
+              v-model="formData.confirmPassword"
+              name="confirmPassword"
+              type="password"
+              required
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-pink-600/20 placeholder-gray-500 text-white bg-[#2a2a2a] rounded-b-md focus:outline-none focus:ring-pink-600 focus:border-pink-600 focus:z-10 sm:text-sm"
+              placeholder="Passwort bestätigen"
             >
           </div>
         </div>
@@ -57,12 +69,12 @@
               >
                 <path
                   fill-rule="evenodd"
-                  d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                   clip-rule="evenodd"
                 />
               </svg>
             </span>
-            {{ loading ? 'Wird angemeldet...' : 'Anmelden' }}
+            {{ loading ? 'Wird registriert...' : 'Registrieren' }}
           </button>
         </div>
 
@@ -73,23 +85,30 @@
 </template>
 
 <script setup lang="ts">
-const { login } = useAuth()
 const loading = ref(false)
 const error = ref('')
 
 const formData = reactive({
   name: '',
-  password: ''
+  password: '',
+  confirmPassword: ''
 })
 
 async function handleSubmit() {
   try {
+    if (formData.password !== formData.confirmPassword) {
+      error.value = 'Die Passwörter stimmen nicht überein'
+      return
+    }
+
     loading.value = true
     error.value = ''
-    await login(formData.password)
-    await navigateTo('/events')
+
+    // TODO: Implement registration API call
+    // For now, we'll just redirect to login
+    await navigateTo('/login')
   } catch (err: any) {
-    error.value = err.message || 'Anmeldung fehlgeschlagen'
+    error.value = err.message || 'Registrierung fehlgeschlagen'
   } finally {
     loading.value = false
   }

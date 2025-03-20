@@ -197,6 +197,15 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
+import { useAuth } from '~/composables/useAuth'
+
+definePageMeta({
+  middleware: ['auth']
+})
+
+const { isAdmin } = useAuth()
+
 const isSubmitting = ref(false)
 const error = ref('')
 
@@ -215,6 +224,13 @@ const eventData = reactive({
 })
 
 const previewUrl = ref('')
+
+// Redirect if not admin
+onMounted(() => {
+  if (!isAdmin.value) {
+    navigateTo('/login')
+  }
+})
 
 function handleFileUpload(event: Event) {
   const target = event.target as HTMLInputElement
